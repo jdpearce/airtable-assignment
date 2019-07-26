@@ -1,0 +1,14 @@
+.timeline-event {
+    background: pink;
+    border-left: 2px solid black;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 30px;
+    border-right: 2px dotted black;
+    display: flex;
+    align-items: center;
+}
