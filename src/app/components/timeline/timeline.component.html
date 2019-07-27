@@ -1,3 +1,13 @@
-<div class="timeline-lane" *ngFor="let laneEvents of lanes" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-    <app-timeline-event *ngFor="let event of laneEvents" [event]="event"></app-timeline-event>
+<button (click)="zoomIn()">+</button>
+<button (click)="zoomOut()">-</button>
+<button (click)="prevPeriod()">&lt;</button>
+<button (click)="nextPeriod()">&gt;</button>
+
+<div class="timeline-container">
+    <div class="timeline-lane" *ngFor="let laneEvents of lanes" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <app-timeline-event *ngFor="let event of laneEvents" [event]="event"></app-timeline-event>
+    </div>
+    <div class="timeline-column-container">
+        <div class="timeline-column" *ngFor="let column of columns"></div>
+    </div>
 </div>
