@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { TimelineEventComponent } from './timeline-event.component';
 
@@ -7,7 +8,8 @@ describe('TimelineEventComponent', () => {
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
-            declarations: [TimelineEventComponent]
+            declarations: [TimelineEventComponent],
+            schemas: [NO_ERRORS_SCHEMA]
         }).compileComponents();
     }));
 

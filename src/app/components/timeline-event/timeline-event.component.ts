@@ -8,11 +8,9 @@ import { TimelineEvent } from '../timeline/timeline.component';
             class="timeline-event"
             draggable="true"
             (dragstart)="onDragStart($event)"
-            [ngStyle]="{ left: event.left + '%', width: (event.width > 10 ? event.width : 10) + '%' }"
+            [ngStyle]="{ left: (event && event.left) + '%', width: (event && event.width) + '%' }"
         >
             {{ event && event.name }}
-            {{ event && event.start }}
-            {{ event && event.end }}
         </div>
     `,
     styleUrls: ['./timeline-event.component.scss'],
@@ -21,11 +19,7 @@ import { TimelineEvent } from '../timeline/timeline.component';
 export class TimelineEventComponent {
     @Input() event: TimelineEvent;
 
-    ngOnInit() {}
-
     onDragStart(event) {
-        console.log(event);
-
         // Add the id of the drag source element to the drag data payload so
         // it is available when the drop event is fired
         event.dataTransfer.setData('id', this.event.id.toString());
