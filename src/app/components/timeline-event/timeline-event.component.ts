@@ -11,6 +11,8 @@ import { TimelineEvent } from '../timeline/timeline.component';
             [ngStyle]="{ left: (event && event.left) + '%', width: (event && event.width) + '%' }"
         >
             {{ event && event.name }}
+            {{ event && event.start | date: 'dd MMM yyyy' }} to
+            {{ event && event.end | date: 'dd MMM yyyy' }}
         </div>
     `,
     styleUrls: ['./timeline-event.component.scss'],

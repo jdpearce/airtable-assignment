@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { getDaysDiff, getMonthsDiff, getWeeksDiff } from 'src/app/utils/date-helpers';
+import { getDaysDiff, getWeeksDiff, getYearsDiff } from 'src/app/utils/date-helpers';
 
 export interface TimelineEvent {
     id: number;
@@ -37,15 +37,18 @@ export class TimelineComponent implements OnChanges {
 
     lanes: Array<TimelineEvent[]> = [];
     columns: number[]; // these are the drop targets
+    columnWidth: number;
     zoomLevel: ZoomLevel;
     scale: number;
     scaleStartDate: Date;
     scaleEndDate: Date;
     eventsEndDate: Date;
     eventsStartDate: Date;
-    numberOfMonths: number;
+    numberOfYears: number;
     numberOfWeeks: number;
     numberOfDays: number;
+
+    counter: number = 0;
 
     ngOnChanges(changes: SimpleChanges) {
         if (!changes.events) {
@@ -60,16 +63,20 @@ export class TimelineComponent implements OnChanges {
         this.events.sort(timelineEventComparer);
 
         // lets set a default scale which contains the entire range to begin with
-        this.eventsEndDate = this.events.reduce((prev, curr) => (curr.end > prev.end ? curr : prev)).end;
         this.eventsStartDate = this.events[0].start;
+        this.eventsEndDate = this.events.reduce((prev, curr) => (curr.end > prev.end ? curr : prev)).end;
 
-        this.numberOfMonths = getMonthsDiff(this.eventsStartDate, this.eventsEndDate);
+        console.log(`time period starts on ${this.eventsStartDate} and ends on ${this.eventsEndDate}`);
+
+        this.numberOfYears = getYearsDiff(this.eventsStartDate, this.eventsEndDate);
         this.numberOfWeeks = getWeeksDiff(this.eventsStartDate, this.eventsEndDate);
         this.numberOfDays = getDaysDiff(this.eventsStartDate, this.eventsEndDate);
 
-        if (this.eventsEndDate.getFullYear() !== this.eventsStartDate.getFullYear()) {
+        console.log(`time period has ${this.numberOfYears} years, ${this.numberOfWeeks} weeks and ${this.numberOfDays} days`);
+
+        if (this.numberOfYears > 1 || this.numberOfWeeks > 4) {
             this.setZoomLevel(ZoomLevel.Year);
-        } else if (this.eventsEndDate.getMonth() !== this.eventsStartDate.getMonth()) {
+        } else if (this.numberOfDays > 7) {
             this.setZoomLevel(ZoomLevel.Month);
         } else {
             this.setZoomLevel(ZoomLevel.Week);
@@ -77,17 +84,22 @@ export class TimelineComponent implements OnChanges {
     }
 
     setZoomLevel(zoom: ZoomLevel) {
+        this.counter = 0;
         switch (zoom) {
             case ZoomLevel.Year: {
                 this.scaleStartDate = new Date(this.eventsStartDate.getFullYear(), 0, 1);
                 this.scaleEndDate = new Date(this.eventsStartDate.getFullYear(), 11, 31);
-                this.columns = Array(this.numberOfMonths).fill(0);
+                this.columns = Array(this.numberOfYears * 12).fill(0);
+                this.columnWidth = 100 / 12;
+                this.scale = 100 / getDaysDiff(this.scaleStartDate, this.scaleEndDate);
                 break;
             }
             case ZoomLevel.Month: {
                 this.scaleStartDate = new Date(this.eventsStartDate.getFullYear(), this.eventsStartDate.getMonth(), 1);
                 this.scaleEndDate = new Date(this.eventsStartDate.getFullYear(), this.eventsStartDate.getMonth() + 1, 0);
                 this.columns = Array(this.numberOfWeeks).fill(0);
+                this.scale = 100 / getDaysDiff(this.scaleStartDate, this.scaleEndDate);
+                this.columnWidth = 7 * this.scale;
                 break;
             }
             case ZoomLevel.Week:
@@ -102,13 +114,14 @@ export class TimelineComponent implements OnChanges {
                     this.eventsStartDate.getMonth(),
                     this.eventsStartDate.getDate() - this.eventsStartDate.getDay() + 7
                 );
-                this.columns = Array(this.numberOfDays).fill(0);
+                this.columns = Array(getDaysDiff(this.scaleStartDate, this.eventsEndDate)).fill(0);
+                this.scale = this.columnWidth = 100 / 7;
                 break;
             }
         }
 
+        this.columns = this.columns.map((x, i) => i);
         this.zoomLevel = zoom;
-        this.scale = 100 / getDaysDiff(this.scaleStartDate, this.scaleEndDate) + 1;
 
         console.log(
             `zoom level set to [${this.zoomLevel}] with scale [${this.scale}] from [${this.scaleStartDate}] to [${this.scaleEndDate}]`
@@ -157,8 +170,9 @@ export class TimelineComponent implements OnChanges {
     fillLanes(): void {
         this.lanes.length = 0;
         for (let event of this.events) {
+            // lets assume that the end date is included
             event.width = getDaysDiff(event.start, event.end) * this.scale;
-            event.left = getDaysDiff(this.scaleStartDate, event.start) * this.scale;
+            event.left = (getDaysDiff(this.scaleStartDate, event.start) - 1) * this.scale;
 
             let foundLane = false;
             for (let lane of this.lanes) {

@@ -1,8 +1,10 @@
 .timeline-lane {
-    height: 30px;
+    height: 2rem;
     position: relative;
 }
+
 .timeline-container {
+    padding-top: 2rem;
     background: grey;
     overflow-x: scroll;
     overflow-y: hidden;
