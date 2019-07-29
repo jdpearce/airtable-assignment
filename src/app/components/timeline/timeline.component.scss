@@ -1,11 +1,13 @@
+$lane-height: 2rem;
+
 .timeline-lane {
-    height: 2rem;
+    height: $lane-height;
     position: relative;
 }
 
 .timeline-container {
-    padding-top: 2rem;
-    background: grey;
+    padding-top: $lane-height;
+    background: #eee;
     overflow-x: scroll;
     overflow-y: hidden;
     position: relative;
@@ -23,10 +25,16 @@
 
 .timeline-column {
     height: 100%;
-    background: blue;
     box-sizing: border-box;
-    border: 1px solid black;
+    border-left: 1px dashed black;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.timeline-column-header {
+    height: $lane-height;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
 }

@@ -9,6 +9,7 @@ export interface TimelineEvent {
     name: string;
     left?: number;
     width?: number;
+    colour?: string;
 }
 
 export function timelineEventComparer(a: TimelineEvent, b: TimelineEvent): number {
@@ -27,6 +28,8 @@ export enum ZoomLevel {
     Month = 'month',
     Year = 'year'
 }
+
+export const colours: string[] = ['#FF5D7D', '#FF764E', '#FFC144', '#88DF8E', '#00CCF2', '#B278D3'];
 
 @Component({
     selector: 'app-timeline',
@@ -199,10 +202,13 @@ export class TimelineComponent implements OnChanges {
 
     fillLanes(): void {
         this.lanes.length = 0;
-        for (let event of this.events) {
+        for (let i = 0; i < this.events.length; i++) {
+            const event = this.events[i];
+
             // lets assume that the end date is included
             event.width = getDaysDiff(event.start, event.end) * this.scale;
             event.left = (getDaysDiff(this.scaleStartDate, event.start) - 1) * this.scale;
+            event.colour = colours[i % colours.length];
 
             let foundLane = false;
             for (let lane of this.lanes) {

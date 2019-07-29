@@ -8,7 +8,7 @@ import { TimelineEvent } from '../timeline/timeline.component';
             class="timeline-event"
             draggable="true"
             (dragstart)="onDragStart($event)"
-            [ngStyle]="{ left: (event && event.left) + '%', width: (event && event.width) + '%' }"
+            [ngStyle]="{ left: (event && event.left) + '%', width: (event && event.width) + '%', background: event && event.colour }"
         >
             {{ event && event.name }}
             {{ event && event.start | date: 'dd MMM yyyy' }} to
