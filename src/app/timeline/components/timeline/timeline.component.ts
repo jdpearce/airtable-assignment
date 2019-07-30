@@ -52,8 +52,7 @@ export class TimelineComponent implements OnChanges {
     numberOfYears: number;
     numberOfWeeks: number;
     numberOfDays: number;
-
-    counter: number = 0;
+    ZoomLevel = ZoomLevel;
 
     constructor(private datePipe: DatePipe) {}
 
@@ -91,7 +90,10 @@ export class TimelineComponent implements OnChanges {
     }
 
     setZoomLevel(zoom: ZoomLevel) {
-        this.counter = 0;
+        if (this.zoomLevel === zoom) {
+            return;
+        }
+
         switch (zoom) {
             case ZoomLevel.Year: {
                 this.scaleStartDate = new Date(this.eventsStartDate.getFullYear(), 0, 1);
@@ -147,6 +149,7 @@ export class TimelineComponent implements OnChanges {
         }
 
         this.zoomLevel = zoom;
+        this.fillLanes();
 
         console.log(
             `zoom level set to [${this.zoomLevel}] with scale [${this.scale}] from [${this.scaleStartDate}] to [${this.scaleEndDate}]`

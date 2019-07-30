@@ -1,0 +1,31 @@
+<div class="timeline-buttons">
+    <button
+        (click)="setZoomLevel(ZoomLevel.Week)"
+        [ngClass]="{ 'toggle-button-off': zoomLevel !== ZoomLevel.Week, 'toggle-button-on': zoomLevel === ZoomLevel.Week }"
+    >
+        <i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;Week
+    </button>
+    <button
+        (click)="setZoomLevel(ZoomLevel.Month)"
+        [ngClass]="{ 'toggle-button-off': zoomLevel !== ZoomLevel.Month, 'toggle-button-on': zoomLevel === ZoomLevel.Month }"
+    >
+        <i class="fa fa-calendar-minus-o" aria-hidden="true"></i>&nbsp;Month
+    </button>
+    <button
+        (click)="setZoomLevel(ZoomLevel.Year)"
+        [ngClass]="{ 'toggle-button-off': zoomLevel !== ZoomLevel.Year, 'toggle-button-on': zoomLevel === ZoomLevel.Year }"
+    >
+        <i class="fa fa-calendar" aria-hidden="true"></i>&nbsp;Year
+    </button>
+</div>
+
+<div class="timeline-container">
+    <div class="timeline-column-container" [ngStyle]="{ width: columnWidth * columns.length + '%' }">
+        <div class="timeline-column" *ngFor="let column of columns" [ngStyle]="{ width: columnWidth + '%' }">
+            <div class="timeline-column-header">{{ column }}</div>
+        </div>
+    </div>
+    <div class="timeline-lane" *ngFor="let laneEvents of lanes" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+        <app-timeline-event *ngFor="let event of laneEvents" [event]="event"></app-timeline-event>
+    </div>
+</div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TimelineEvent } from './components/timeline/timeline.component';
+import { TimelineEvent } from './timeline/model';
 import { timeLineEvents } from './timelineItems.constant';
 
 @Component({

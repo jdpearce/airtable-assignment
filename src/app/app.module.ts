@@ -1,14 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { EffectsModule } from '@ngrx/effects';
+import { StoreModule } from '@ngrx/store';
+import { environment } from 'src/environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { TimelineEventComponent } from './components/timeline-event/timeline-event.component';
-import { TimelineComponent } from './components/timeline/timeline.component';
+import { appReducers } from './store/app.reducers';
+import { TimelineModule } from './timeline/timeline.module';
 
 @NgModule({
-    declarations: [AppComponent, TimelineComponent, TimelineEventComponent],
-    imports: [BrowserModule, CommonModule, AppRoutingModule],
+    declarations: [AppComponent],
+    imports: [
+        BrowserModule,
+        CommonModule,
+        AppRoutingModule,
+        StoreModule.forRoot(appReducers),
+        EffectsModule.forRoot([]),
+        environment.imports,
+        TimelineModule
+    ],
     providers: [],
     bootstrap: [AppComponent]
 })
