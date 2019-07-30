@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { environment } from 'src/environments/environment';
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { appReducers } from './store/app.reducers';
 import { TimelineModule } from './timeline/timeline.module';
@@ -14,7 +13,6 @@ import { TimelineModule } from './timeline/timeline.module';
     imports: [
         BrowserModule,
         CommonModule,
-        AppRoutingModule,
         StoreModule.forRoot(appReducers),
         EffectsModule.forRoot([]),
         environment.imports,

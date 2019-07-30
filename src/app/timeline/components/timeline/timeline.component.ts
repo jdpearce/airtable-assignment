@@ -41,7 +41,7 @@ export class TimelineComponent implements OnChanges {
         }
 
         this.processEvents();
-        this.setInitialZoom();
+        this.setZoomLevel(ZoomLevel.Month);
         this.fillLanes();
     }
 
@@ -59,16 +59,6 @@ export class TimelineComponent implements OnChanges {
         this.numberOfDays = getDaysDiff(this.eventsStartDate, this.eventsEndDate);
 
         console.info(`time period has ${this.numberOfYears} years, ${this.numberOfWeeks} weeks and ${this.numberOfDays} days`);
-    }
-
-    setInitialZoom() {
-        if (this.numberOfYears > 1 || this.numberOfWeeks > 4) {
-            this.setZoomLevel(ZoomLevel.Year);
-        } else if (this.numberOfDays > 7) {
-            this.setZoomLevel(ZoomLevel.Month);
-        } else {
-            this.setZoomLevel(ZoomLevel.Week);
-        }
     }
 
     setZoomLevel(zoom: ZoomLevel) {

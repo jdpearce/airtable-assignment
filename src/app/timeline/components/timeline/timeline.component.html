@@ -35,7 +35,7 @@
             class="timeline-event"
             [ngStyle]="{ left: event.left + '%', width: event.width + '%', background: event.colour }"
         >
-            {{ event.name }}, {{ event.days }}, {{ event.start | date: 'dd MMM yyyy' }}, {{ event.end | date: 'dd MMM yyyy' }}
+            {{ event.name }} [{{ event.days }} days from {{ event.start | date: 'dd MMM' }} to {{ event.end | date: 'dd MMM' }}]
         </div>
     </div>
 </div>
