@@ -4,3 +4,21 @@ body {
     font-family: Roboto, Helvetica, Arial, sans-serif;
     font-size: 12px;
 }
+
+.toggle-button-on,
+.toggle-button-off {
+    cursor: pointer;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0.5rem 0.5rem 0;
+}
+
+.toggle-button-on {
+    background: #ff764e;
+    box-shadow: none;
+}
+
+.toggle-button-off {
+    background: #ff5d7d;
+    box-shadow: 2px 2px #00ccf2;
+}
