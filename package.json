@@ -7,9 +7,13 @@
         "build": "ng build",
         "test": "ng test",
         "lint": "ng lint",
-        "e2e": "ng e2e"
+        "e2e": "ng e2e",
+        "postinstall": "ng build --prod"
     },
-    "private": true,
+    "engines": {
+        "node": "10.9",
+        "npm": "6.2.0"
+    },
     "dependencies": {
         "@angular/animations": "~8.1.0",
         "@angular/common": "~8.1.0",
