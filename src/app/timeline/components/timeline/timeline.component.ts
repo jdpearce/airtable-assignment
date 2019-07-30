@@ -1,35 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, Renderer2, SimpleChanges } from '@angular/core';
 import { getDaysDiff, getWeeksDiff, getYearsDiff } from 'src/app/utils/date-helpers';
-
-export interface TimelineEvent {
-    id: number;
-    start: Date;
-    end: Date;
-    name: string;
-    left?: number;
-    width?: number;
-    colour?: string;
-}
-
-export function timelineEventComparer(a: TimelineEvent, b: TimelineEvent): number {
-    if (a.start < b.start) {
-        return -1;
-    }
-    if (a.start === b.start) {
-        return 0;
-    }
-
-    return 1;
-}
-
-export enum ZoomLevel {
-    Week = 'week',
-    Month = 'month',
-    Year = 'year'
-}
-
-export const colours: string[] = ['#FF5D7D', '#FF764E', '#FFC144', '#88DF8E', '#00CCF2', '#B278D3'];
+import { colours, TimelineColumn, TimelineEvent, timelineEventComparer, ZoomLevel } from '../../model';
 
 @Component({
     selector: 'app-timeline',
@@ -41,7 +13,7 @@ export class TimelineComponent implements OnChanges {
     @Input() events: TimelineEvent[];
 
     lanes: Array<TimelineEvent[]> = [];
-    columns: string[]; // these are the drop targets
+    columns: TimelineColumn[] = []; // these are the drop targets
     columnWidth: number;
     zoomLevel: ZoomLevel;
     scale: number;
@@ -54,7 +26,14 @@ export class TimelineComponent implements OnChanges {
     numberOfDays: number;
     ZoomLevel = ZoomLevel;
 
-    constructor(private datePipe: DatePipe) {}
+    dragTarget: { element: HTMLElement; column: TimelineColumn };
+    dragItem: TimelineEvent;
+
+    constructor(private datePipe: DatePipe, private renderer2: Renderer2) {}
+
+    ngOnInit() {
+        document.addEventListener('dragend', event => this.onDragEnd(event));
+    }
 
     ngOnChanges(changes: SimpleChanges) {
         if (!changes.events) {
@@ -62,6 +41,7 @@ export class TimelineComponent implements OnChanges {
         }
 
         this.processEvents();
+        this.setInitialZoom();
         this.fillLanes();
     }
 
@@ -72,14 +52,16 @@ export class TimelineComponent implements OnChanges {
         this.eventsStartDate = this.events[0].start;
         this.eventsEndDate = this.events.reduce((prev, curr) => (curr.end > prev.end ? curr : prev)).end;
 
-        console.log(`time period starts on ${this.eventsStartDate} and ends on ${this.eventsEndDate}`);
+        console.info(`time period starts on ${this.eventsStartDate} and ends on ${this.eventsEndDate}`);
 
         this.numberOfYears = getYearsDiff(this.eventsStartDate, this.eventsEndDate);
         this.numberOfWeeks = getWeeksDiff(this.eventsStartDate, this.eventsEndDate);
         this.numberOfDays = getDaysDiff(this.eventsStartDate, this.eventsEndDate);
 
-        console.log(`time period has ${this.numberOfYears} years, ${this.numberOfWeeks} weeks and ${this.numberOfDays} days`);
+        console.info(`time period has ${this.numberOfYears} years, ${this.numberOfWeeks} weeks and ${this.numberOfDays} days`);
+    }
 
+    setInitialZoom() {
         if (this.numberOfYears > 1 || this.numberOfWeeks > 4) {
             this.setZoomLevel(ZoomLevel.Year);
         } else if (this.numberOfDays > 7) {
@@ -102,7 +84,10 @@ export class TimelineComponent implements OnChanges {
                     .fill('month')
                     .map((_v, i) => {
                         const colDate = new Date(this.eventsStartDate.getFullYear(), this.scaleStartDate.getMonth() + i, 1);
-                        return this.datePipe.transform(colDate, 'MMMM yyyy');
+                        return {
+                            start: colDate,
+                            title: this.datePipe.transform(colDate, 'MMMM yyyy')
+                        };
                     });
                 this.columnWidth = 100 / 12;
                 this.scale = 100 / getDaysDiff(this.scaleStartDate, this.scaleEndDate);
@@ -116,10 +101,13 @@ export class TimelineComponent implements OnChanges {
                     .map((_v, i) => {
                         const colStartDate = new Date(this.eventsStartDate.getFullYear(), this.scaleStartDate.getMonth(), 1 + 7 * i);
                         const colEndDate = new Date(this.eventsStartDate.getFullYear(), this.scaleStartDate.getMonth(), 1 + 7 * (i + 1));
-                        return `${this.datePipe.transform(colStartDate, 'dd MMM yyyy')} -    ${this.datePipe.transform(
-                            colEndDate,
-                            'dd MMM yyyy'
-                        )}`;
+                        return {
+                            start: colStartDate,
+                            title: `${this.datePipe.transform(colStartDate, 'dd MMM yyyy')} -    ${this.datePipe.transform(
+                                colEndDate,
+                                'dd MMM yyyy'
+                            )}`
+                        };
                     });
                 this.scale = 100 / getDaysDiff(this.scaleStartDate, this.scaleEndDate);
                 this.columnWidth = 7 * this.scale;
@@ -141,7 +129,10 @@ export class TimelineComponent implements OnChanges {
                     .fill('day')
                     .map((_v, i) => {
                         const colDate = new Date(this.eventsStartDate.getFullYear(), this.scaleStartDate.getMonth(), 1 + i);
-                        return this.datePipe.transform(colDate, 'EEE, dd MMM yyyy');
+                        return {
+                            start: colDate,
+                            title: this.datePipe.transform(colDate, 'EEE, dd MMM yyyy')
+                        };
                     });
                 this.scale = this.columnWidth = 100 / 7;
                 break;
@@ -156,50 +147,41 @@ export class TimelineComponent implements OnChanges {
         );
     }
 
-    onDragOver(event: DragEvent) {
-        event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+    onDragOver($event: DragEvent, column) {
+        this.renderer2.addClass($event.target, 'drag-over');
+        this.dragTarget = { element: $event.target as HTMLElement, column };
     }
 
-    onDrop(event: DragEvent) {
-        event.preventDefault();
-    }
-
-    zoomIn() {
-        switch (this.zoomLevel) {
-            case ZoomLevel.Year:
-                this.setZoomLevel(ZoomLevel.Month);
-                this.fillLanes();
-                break;
-            case ZoomLevel.Month:
-                this.setZoomLevel(ZoomLevel.Week);
-                this.fillLanes();
-                break;
-            case ZoomLevel.Week:
-                break;
+    onDragLeave($event: DragEvent) {
+        const target = $event.target as HTMLElement;
+        if (target.tagName !== 'DIV') {
+            return;
         }
+
+        this.renderer2.removeClass(target, 'drag-over');
     }
 
-    isZoomInDisabled(): boolean {
-        return this.zoomLevel === ZoomLevel.Week;
+    onDragStart($event, timelineEvent: TimelineEvent) {
+        $event.dataTransfer.setData('text', timelineEvent.id); // required for FF
+        this.dragItem = timelineEvent;
     }
 
-    isZoomOutDisabled(): boolean {
-        return this.zoomLevel === ZoomLevel.Year;
-    }
+    onDragEnd($event) {
+        if (this.dragItem && this.dragTarget) {
+            this.dragItem.start = this.dragTarget.column.start;
+            this.dragItem.end = new Date(
+                this.dragItem.start.getFullYear(),
+                this.dragItem.start.getMonth(),
+                this.dragItem.start.getDate() + this.dragItem.days - 1
+            );
+            this.dragItem = null;
+            this.processEvents();
+            this.fillLanes();
+        }
 
-    zoomOut() {
-        switch (this.zoomLevel) {
-            case ZoomLevel.Year:
-                break;
-            case ZoomLevel.Month:
-                this.setZoomLevel(ZoomLevel.Year);
-                this.fillLanes();
-                break;
-            case ZoomLevel.Week:
-                this.setZoomLevel(ZoomLevel.Month);
-                this.fillLanes();
-                break;
+        if (this.dragTarget) {
+            this.renderer2.removeClass(this.dragTarget.element, 'drag-over');
+            this.dragTarget = null;
         }
     }
 
@@ -209,7 +191,8 @@ export class TimelineComponent implements OnChanges {
             const event = this.events[i];
 
             // lets assume that the end date is included
-            event.width = getDaysDiff(event.start, event.end) * this.scale;
+            event.days = getDaysDiff(event.start, event.end);
+            event.width = event.days * this.scale;
             event.left = (getDaysDiff(this.scaleStartDate, event.start) - 1) * this.scale;
             event.colour = colours[i % colours.length];
 

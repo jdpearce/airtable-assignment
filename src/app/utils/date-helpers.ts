@@ -1,5 +1,5 @@
 export function getDaysDiff(from: Date, to: Date): number {
-    return Math.floor((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return Math.ceil((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 }
 
 export function getYearsDiff(start: Date, end: Date) {
@@ -16,11 +16,12 @@ export function getMonthsDiff(start: Date, end: Date) {
 
 // Gets the whole number of weeks (Mon - Sun) that cover the dates
 export function getWeeksDiff(start: Date, end: Date) {
+    console.log(start, end);
     let days = getDaysDiff(start, end);
     // why does javascript start weeks on Sunday? 🤦‍♀️
     let startDay = (start.getDay() + 6) % 7;
     let endDay = (end.getDay() + 6) % 7;
-    days += startDay - 1;
-    days += 7 - endDay;
-    return days / 7;
+    days += startDay;
+    days += 6 - endDay;
+    return Math.ceil(days / 7);
 }

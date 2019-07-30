@@ -34,7 +34,26 @@ $lane-height: 2rem;
 
 .timeline-column-header {
     height: $lane-height;
+    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
     font-weight: 700;
+}
+
+.drag-over {
+    border: 1px dashed #ff5d7d;
+}
+
+.timeline-event {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
 }

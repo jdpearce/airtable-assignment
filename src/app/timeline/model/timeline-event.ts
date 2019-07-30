@@ -3,6 +3,7 @@ export interface TimelineEvent {
     start: Date;
     end: Date;
     name: string;
+    days?: number;
     left?: number;
     width?: number;
     colour?: string;
