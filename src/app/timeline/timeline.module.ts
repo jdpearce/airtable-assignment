@@ -1,4 +1,3 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { EffectsModule } from '@ngrx/effects';
@@ -10,12 +9,7 @@ import { timelineReducer } from './store/timeline.reducer';
 @NgModule({
     declarations: [TimelineComponent],
     exports: [TimelineComponent],
-    imports: [
-        CommonModule,
-        StoreModule.forFeature('timeline', timelineReducer),
-        EffectsModule.forFeature([TimelineEffects]),
-        DragDropModule
-    ],
+    imports: [CommonModule, StoreModule.forFeature('timeline', timelineReducer), EffectsModule.forFeature([TimelineEffects])],
     providers: [DatePipe]
 })
 export class TimelineModule {}
